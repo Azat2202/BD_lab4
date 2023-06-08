@@ -1,0 +1,152 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, left=5mm, right=5mm, top=5mm, bottom=5mm]{geometry}
+%\usepackage[a4paper, top=15mm, right=10mm, bottom=10mm, left=10mm]{geometry}
+\usepackage[russian]{babel}
+\usepackage{fontspec}
+\usepackage{graphicx}
+\usepackage[unicode]{hyperref}
+\usepackage{enumitem}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{amsmath}
+\usepackage{blindtext}
+\usepackage{float}
+\usepackage{multicol}
+\usepackage{latexsym}
+%\usepackage[font={bf}, name={Рис. }, justification=justified]{caption}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{breqn}
+\usepackage{pdfpages}
+\usepackage{verbatim}
+
+\setmainfont{Times New Roman}
+%\righthyphenmin=2 % правильные переносы
+%\graphicspath{{images/}} % путь к картинкам
+
+\title{Lab6 OPD}
+\author{Азат Сиразетдинов}
+
+\begin{document}
+	\thispagestyle{empty}
+	\begin{center}
+		Федеральное государственное автономное образовательное учреждение\\ 
+		высшего образования\\
+		«Национальный исследовательский университет ИТМО»\\
+		\textit{Факультет Программной Инженерии и Компьютерной Техники}\\
+	\end{center}
+	\vspace{2cm}
+	\begin{center}
+		\large
+		\textbf{Лабораторная работа № 4}\\
+		по дисциплине базы данных\\
+		Индексы\\
+		Вариант № 1678
+	\end{center}
+	\vspace{7cm}
+	\begin{flushright}
+		Выполнил:\\
+		cтудент  группы P3116\\
+		Сиразетдинов А. Н\\
+		Преподаватель: \\
+		Горбунов М. В.\\
+	\end{flushright}
+	\vspace{6cm}
+	\begin{center}
+		г. Санкт-Петербург\\
+		2023г.
+	\end{center}
+	\newpage
+	
+	\tableofcontents
+	\newpage
+	
+	\section{Текст задания}
+	Составить запросы на языке SQL (пункты 1-2).
+	
+	Для каждого запроса предложить индексы, добавление которых уменьшит время выполнения запроса (указать таблицы/атрибуты, для которых нужно добавить индексы, написать тип индекса; объяснить, почему добавление индекса будет полезным для данного запроса).
+	
+	Для запросов 1-2 необходимо составить возможные планы выполнения запросов. Планы составляются на основании предположения, что в таблицах отсутствуют индексы. Из составленных планов необходимо выбрать оптимальный и объяснить свой выбор.
+	Изменятся ли планы при добавлении индекса и как?
+	
+	Для запросов 1-2 необходимо добавить в отчет вывод команды EXPLAIN ANALYZE [запрос]
+	
+	Подробные ответы на все вышеперечисленные вопросы должны присутствовать в отчете (планы выполнения запросов должны быть нарисованы, ответы на вопросы - представлены в текстовом виде).
+	
+	Сделать запрос для получения атрибутов из указанных таблиц, применив фильтры по указанным условиям:
+	Н_ТИПЫ_ВЕДОМОСТЕЙ, Н_ВЕДОМОСТИ.
+	Вывести атрибуты: Н_ТИПЫ_ВЕДОМОСТЕЙ.ИД, Н_ВЕДОМОСТИ.ЧЛВК_ИД.
+	Фильтры (AND):
+	\begin{enumerate}[]\item
+	\item Н_ТИПЫ_ВЕДОМОСТЕЙ.НАИМЕНОВАНИЕ > Ведомость.
+	\item Н_ВЕДОМОСТИ.ИД > 1250981.
+	\end{enumerate}
+	Вид соединения: RIGHT JOIN.
+	Сделать запрос для получения атрибутов из указанных таблиц, применив фильтры по указанным условиям:
+	Таблицы: Н_ЛЮДИ, Н_ОБУЧЕНИЯ, Н_УЧЕНИКИ.
+	Вывести атрибуты: Н_ЛЮДИ.ИМЯ, Н_ОБУЧЕНИЯ.ЧЛВК_ИД, Н_УЧЕНИКИ.НАЧАЛО.
+	Фильтры: (AND)
+	\begin{enumerate}[]\item 
+	\item Н_ЛЮДИ.ФАМИЛИЯ < Ёлкин.
+	\item Н_ОБУЧЕНИЯ.ЧЛВК_ИД > 112514.
+	\item Н_УЧЕНИКИ.ИД > 100410.
+	\end{enumerate}
+	Вид соединения: RIGHT JOIN.
+	
+	\section{Реализация запросов на SQL}
+	
+	\subsection{Запрос 1}
+	\begin{verbatim}
+		SELECT
+			Н_ТИПЫ_ВЕДОМОСТЕЙ.ИД,
+			Н_ВЕДОМОСТИ.ЧЛВК_ИД
+		FROM
+			"Н_ТИПЫ_ВЕДОМОСТЕЙ"
+		RIGHT JOIN "Н_ВЕДОМОСТИ" 
+		ON
+			Н_ВЕДОМОСТИ."ТВ_ИД" = Н_ТИПЫ_ВЕДОМОСТЕЙ."ИД"
+		WHERE
+			Н_ТИПЫ_ВЕДОМОСТЕЙ.НАИМЕНОВАНИЕ > 'Ведомость'
+			AND Н_ВЕДОМОСТИ.ИД > 1250981;
+	\end{verbatim}
+
+	\subsection{Запрос 2}
+	\begin{lstlisting}[
+		language=SQL,
+		showspaces=false,
+		basicstyle=\ttfamily,
+		numbers=left,
+		numberstyle=\tiny,
+		commentstyle=\color{gray}
+		]
+		SELECT
+			Н_ЛЮДИ.ИМЯ,
+			Н_ОБУЧЕНИЯ.ЧЛВК_ИД,
+			Н_УЧЕНИКИ.НАЧАЛО
+		FROM
+			"Н_ЛЮДИ"
+		RIGHT JOIN "Н_ОБУЧЕНИЯ"
+		ON
+			Н_ЛЮДИ."ИД" = Н_ОБУЧЕНИЯ."ЧЛВК_ИД"
+		RIGHT JOIN "Н_УЧЕНИКИ" 
+		ON
+			Н_УЧЕНИКИ."ЧЛВК_ИД" = Н_ОБУЧЕНИЯ."ЧЛВК_ИД"
+			AND Н_УЧЕНИКИ."ВИД_ОБУЧ_ИД" = Н_ОБУЧЕНИЯ."ВИД_ОБУЧ_ИД"
+		WHERE 
+			Н_ЛЮДИ.ФАМИЛИЯ < 'Ёлкин'
+			AND Н_ОБУЧЕНИЯ.ЧЛВК_ИД > 112514
+			AND Н_УЧЕНИКИ.ИД > 100410;
+	\end{verbatim}
+	
+\end{document}
+
+
+
+
+
+
+
